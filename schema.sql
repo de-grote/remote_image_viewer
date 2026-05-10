@@ -1,0 +1,35 @@
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE TABLE "Link" (
+	"id"	INTEGER NOT NULL,
+	"link"	TEXT NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE "Tag" (
+	"id"	INTEGER NOT NULL,
+	"tag"	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE "Alias" (
+	"id"	INTEGER NOT NULL,
+	"alias"	TEXT NOT NULL,
+	"tag"	INTEGER NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("tag") REFERENCES "Tag"("id")
+);
+CREATE TABLE "Image" (
+	"id"	INTEGER NOT NULL,
+	"hash"	TEXT NOT NULL,
+	"link"	INTEGER NOT NULL,
+	"preview_link"	INTEGER,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("link") REFERENCES "Link"("id"),
+	FOREIGN KEY("preview_link") REFERENCES "Link"("id")
+);
+CREATE TABLE "Image_Tag" (
+	"id"	INTEGER NOT NULL,
+	"image"	INTEGER NOT NULL,
+	"tag"	INTEGER NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("image") REFERENCES "Image"("id"),
+	FOREIGN KEY("tag") REFERENCES "Tag"("id")
+);

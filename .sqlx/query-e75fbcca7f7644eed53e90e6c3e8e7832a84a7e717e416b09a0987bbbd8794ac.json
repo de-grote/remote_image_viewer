@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT Tag.tag FROM Tag\n            JOIN Image_Tag on Image_Tag.tag = Tag.id\n            WHERE Image_Tag.image = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tag",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e75fbcca7f7644eed53e90e6c3e8e7832a84a7e717e416b09a0987bbbd8794ac"
+}

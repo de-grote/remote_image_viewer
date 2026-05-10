@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT Image.id, Link.link, PreviewLink.link AS \"preview_link?\" FROM Image\n            JOIN Link ON Link.id = Image.link\n            LEFT JOIN Link AS PreviewLink ON PreviewLink.id = Image.preview_link\n            WHERE Image.id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "link",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "preview_link?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c9de090b689fdf61afeef4927d545c8ebac28f6e934daa4c3d68c8adb1f62c1c"
+}
