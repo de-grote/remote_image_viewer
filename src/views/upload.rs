@@ -35,8 +35,18 @@ pub fn Upload() -> Element {
             },
         }
         ul {
-            for tag in tags().iter() {
-                li { "{tag}" }
+            for tag in tags().iter().cloned() {
+                li {
+                    "{tag}"
+                    button {
+                        onclick: move |_| {
+                            let mut t = tags();
+                            t.remove(&tag);
+                            tags.set(t);
+                        },
+                        "-"
+                    }
+                }
             }
         }
         button {
