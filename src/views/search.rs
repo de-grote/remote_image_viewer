@@ -10,7 +10,7 @@ pub fn Search(tags: Option<String>) -> Element {
     info!("tags: {:?}", tags);
 
     let mut tags_signal = use_signal(|| tags.clone());
-    if &*tags_signal.read() != &tags {
+    if *tags_signal.read() != tags {
         tags_signal.set(tags.clone());
     }
 

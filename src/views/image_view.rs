@@ -1,7 +1,4 @@
-use crate::{
-    api::{self, ImageWithTags},
-    components::Image,
-};
+use crate::{api::ImageWithTags, components::Image};
 use dioxus::prelude::*;
 
 #[component]
@@ -24,7 +21,7 @@ pub fn ImageView(id: i64) -> Element {
 }
 
 #[server]
-async fn get_image(id: i64) -> Result<api::ImageWithTags> {
+async fn get_image(id: i64) -> Result<ImageWithTags> {
     use crate::server::queries::{get_image, get_tags};
 
     let (image, tags) = tokio::try_join!(get_image(id), get_tags(id))?;

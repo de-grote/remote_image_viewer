@@ -7,11 +7,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.7.5", features = ["router", "fullstack"] }
+dioxus = { version = "0.7.9", features = ["router", "fullstack"] }
 dotenvy = { version = "0.15.7", optional = true }
 serde = "1.0.228"
 sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio"], optional = true }
-tokio = "1.50.0"
+thiserror = "2.0.18"
+tokio = "1.52.3"
+toml = "1.1.2"
 
 [features]
 default = ["web"]

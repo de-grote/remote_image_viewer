@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-
+use thiserror::Error;
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Image {
@@ -12,4 +12,10 @@ pub struct Image {
 pub struct ImageWithTags {
     pub image: Image,
     pub tags: Vec<String>,
+}
+
+#[derive(Debug, Error)]
+pub enum ServerError {
+    #[error("Cannot create image with unknown tags")]
+    CreateUnknownTag,
 }

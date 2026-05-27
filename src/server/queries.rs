@@ -2,7 +2,10 @@ use dioxus::prelude::*;
 use sqlx::PgPool;
 use std::{collections::BTreeSet, sync::OnceLock};
 
-use crate::api::Image;
+use crate::{
+    api::{Image, ServerError},
+    server::settings::GLOBAL_SETTINGS,
+};
 
 static POOL: OnceLock<PgPool> = OnceLock::new();
 
@@ -40,10 +43,17 @@ pub async fn upload_new_image(link: String, tags: BTreeSet<String>) -> Result<i6
             .unwrap();
         let tag_id = match tag_id {
             Some(id) => id,
-            None => sqlx::query_scalar!("INSERT INTO Tag(tag) VALUES ($1) RETURNING id", tag)
-                .fetch_one(&mut *connection)
-                .await
-                .unwrap(),
+            None => {
+                if GLOBAL_SETTINGS.create_unknown_tags {
+                    sqlx::query_scalar!("INSERT INTO Tag(tag) VALUES ($1) RETURNING id", tag)
+                        .fetch_one(&mut *connection)
+                        .await
+                        .unwrap()
+                } else {
+                    connection.rollback().await?;
+                    return Err(ServerError::CreateUnknownTag.into());
+                }
+            }
         };
         sqlx::query!(
             "INSERT INTO Image_Tag(image, tag) VALUES ($1, $2)",
