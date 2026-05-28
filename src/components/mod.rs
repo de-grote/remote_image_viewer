@@ -10,3 +10,6 @@ pub use searchbar::SearchBar;
 
 mod image_preview;
 pub use image_preview::ImagePreview;
+
+mod tag_editor;
+pub use tag_editor::TagEditor;

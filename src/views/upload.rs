@@ -1,14 +1,16 @@
-use std::collections::BTreeSet;
-
-use crate::components::Image;
+use crate::{
+    api::ServerError,
+    components::{Image, TagEditor},
+};
 use dioxus::prelude::*;
+use std::collections::BTreeSet;
 
 #[component]
 pub fn Upload() -> Element {
     let nav = navigator();
     let mut image_string = use_signal(String::new);
-    let mut tags = use_signal(BTreeSet::<String>::new);
-    let mut tag_string = use_signal(String::new);
+    let tags = use_signal(BTreeSet::<String>::new);
+
     rsx! {
         h1 { "remote image viewer uploader :tm:" }
         input {
@@ -19,36 +21,7 @@ pub fn Upload() -> Element {
         }
         Image { src: image_string }
         h2 { "tags" }
-        input {
-            value: tag_string,
-            id: "upload-tags",
-            oninput: move |e| {
-                tag_string.set(e.value());
-            },
-            onkeydown: move |e| {
-                if e.code() == Code::Enter {
-                    let mut t = tags();
-                    t.extend(tag_string().split_ascii_whitespace().map(ToOwned::to_owned));
-                    tags.set(t);
-                    tag_string.clear();
-                }
-            },
-        }
-        ul {
-            for tag in tags().iter().cloned() {
-                li {
-                    "{tag}"
-                    button {
-                        onclick: move |_| {
-                            let mut t = tags();
-                            t.remove(&tag);
-                            tags.set(t);
-                        },
-                        "-"
-                    }
-                }
-            }
-        }
+        TagEditor { tags }
         button {
             onclick: move |_| async move {
                 match upload(image_string(), tags()).await {
@@ -68,6 +41,22 @@ pub fn Upload() -> Element {
 #[post("/upload_img")]
 async fn upload(link: String, tags: BTreeSet<String>) -> Result<i64> {
     use crate::server::queries::upload_new_image;
+
+    let client = reqwest::Client::new();
+    let res = client
+        .head(&link)
+        .send()
+        .await
+        .map_err(|_| ServerError::InvalidImageLink)?
+        .error_for_status()?;
+    let headers = res.headers();
+    if !headers
+        .get("content-type")
+        .and_then(|val| val.to_str().ok())
+        .is_some_and(|str| str.starts_with("image"))
+    {
+        return Err(ServerError::NotAnImage.into());
+    }
 
     upload_new_image(link, tags).await
 }

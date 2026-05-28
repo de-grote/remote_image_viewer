@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use sqlx::PgPool;
+use sqlx::{PgPool, PgTransaction};
 use std::{collections::BTreeSet, sync::OnceLock};
 
 use crate::{
@@ -36,6 +36,33 @@ pub async fn upload_new_image(link: String, tags: BTreeSet<String>) -> Result<i6
     .fetch_one(&mut *connection)
     .await?;
 
+    add_tags_inner(image_id, tags, connection).await?;
+
+    Ok(image_id)
+}
+
+pub async fn update_tags(
+    image_id: i64,
+    added: BTreeSet<String>,
+    removed: BTreeSet<String>,
+) -> Result<()> {
+    let mut connection = db().await.begin().await?;
+    let removed = removed.into_iter().collect::<Vec<_>>();
+    sqlx::query!(
+        "DELETE FROM Image_Tag WHERE image=$1 AND tag IN (SELECT id FROM Tag WHERE tag=ANY($2))",
+        image_id,
+        &removed
+    )
+    .execute(&mut *connection)
+    .await?;
+    add_tags_inner(image_id, added, connection).await
+}
+
+async fn add_tags_inner<'a>(
+    image_id: i64,
+    tags: BTreeSet<String>,
+    mut connection: PgTransaction<'_>,
+) -> Result<()> {
     for tag in tags {
         let tag_id = sqlx::query_scalar!("SELECT id FROM Tag WHERE tag=$1", tag)
             .fetch_optional(&mut *connection)
@@ -66,8 +93,7 @@ pub async fn upload_new_image(link: String, tags: BTreeSet<String>) -> Result<i6
     }
 
     connection.commit().await?;
-
-    Ok(image_id)
+    Ok(())
 }
 
 pub async fn search_tags(tags: Vec<String>) -> Result<Vec<Image>> {

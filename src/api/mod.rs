@@ -18,4 +18,8 @@ pub struct ImageWithTags {
 pub enum ServerError {
     #[error("Cannot create image with unknown tags")]
     CreateUnknownTag,
+    #[error("Invalid image link")]
+    InvalidImageLink,
+    #[error("Not an image")]
+    NotAnImage,
 }
