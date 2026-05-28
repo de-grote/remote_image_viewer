@@ -1,0 +1,22 @@
+.preview-list {
+  display: grid;
+  /* grid-template-columns: repeat(5, 1fr); */ /* set in dioxus directly */
+  gap: 16px;
+
+  margin: 0 auto;
+}
+
+.preview {
+  border: 4px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #555;
+}
+
+.preview img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  display: block;
+  overflow: hidden;
+}

@@ -4,6 +4,8 @@ use crate::{
 };
 use dioxus::prelude::*;
 
+const PREVIEW_CSS: Asset = asset!("/assets/styling/image_preview.css");
+
 #[component]
 pub fn Search(tags: Option<String>) -> Element {
     let tags = tags.unwrap_or_default();
@@ -26,12 +28,15 @@ pub fn Search(tags: Option<String>) -> Element {
         search(tag_list)
     })?;
 
-    info!("images: {:?}", images);
+    // TODO make dynamic
+    let row_width = 5;
 
     rsx! {
+        document::Link { rel: "stylesheet", href: PREVIEW_CSS }
+
         SearchBar { value: tags }
 
-        div {
+        div { class: "preview-list", grid_template_columns: "repeat({row_width}, 1fr)",
             for img in images.iter() {
                 ImagePreview { image: img.clone() }
             }

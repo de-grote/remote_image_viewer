@@ -11,7 +11,7 @@ pub fn Image(src: String) -> Element {
             id: "main-image",
             class: "fit-vertical",
             src: "{src}",
-            alt: "womp womp",
+            alt: "failed to load image",
         }
     }
 }
