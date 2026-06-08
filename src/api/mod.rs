@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+mod user;
+pub use user::User;
+
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Image {
     pub id: i64,
@@ -22,4 +25,6 @@ pub enum ServerError {
     InvalidImageLink,
     #[error("Not an image")]
     NotAnImage,
+    #[error("Unknown error")]
+    UnknownError,
 }

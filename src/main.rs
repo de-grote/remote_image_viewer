@@ -2,7 +2,7 @@
 // need dioxus
 use dioxus::prelude::*;
 
-use views::{Home, ImageView, Navbar, Upload, Search};
+use views::{Home, ImageView, Navbar, Search, Upload};
 
 #[cfg(feature = "server")]
 mod server;
@@ -47,9 +47,31 @@ const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/styling/main.css");
 
 fn main() {
-    // The `launch` function is the main entry point for a dioxus app. It takes a component and renders it with the platform feature
-    // you have enabled
+    #[cfg(not(feature = "server"))]
     dioxus::launch(App);
+    #[cfg(feature = "server")]
+    dioxus::serve(|| async move {
+        use crate::server::queries::db;
+        use axum_session::{SessionConfig, SessionLayer, SessionStore};
+        use axum_session_auth::{AuthConfig, AuthSessionLayer};
+        use axum_session_sqlx::SessionPgPool;
+        use sqlx::PgPool;
+
+        let pool = db().await;
+
+        Ok(dioxus::server::router(App)
+            .layer(
+                AuthSessionLayer::<api::User, i64, SessionPgPool, PgPool>::new(Some(pool.clone()))
+                    .with_config(AuthConfig::<i64>::default().with_anonymous_user_id(Some(1))),
+            )
+            .layer(SessionLayer::new(
+                SessionStore::<SessionPgPool>::new(
+                    Some(pool.clone().into()),
+                    SessionConfig::default().with_table_name("sessions"),
+                )
+                .await?,
+            )))
+    });
 }
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function

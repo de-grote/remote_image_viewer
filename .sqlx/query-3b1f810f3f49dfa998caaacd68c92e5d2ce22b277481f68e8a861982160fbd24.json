@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT Tags.tag FROM Tags\n            JOIN Images_Tags on Images_Tags.tag = Tags.id\n            WHERE Images_Tags.image = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tag",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "tags",
+            "name": "tag"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3b1f810f3f49dfa998caaacd68c92e5d2ce22b277481f68e8a861982160fbd24"
+}

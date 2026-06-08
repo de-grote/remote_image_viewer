@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM Images_Tags WHERE image=$1 AND tag IN (SELECT id FROM Tags WHERE tag=ANY($2))",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "476b12b4cca6556af70c87d6b85f4a3077e16eea59ebb5971025f017ff570bab"
+}

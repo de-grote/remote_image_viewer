@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT Images.id, Links.link, PreviewLinks.link AS \"preview_link?\" FROM Images\n            JOIN Images_Tags ON Images.id = Images_Tags.image\n            JOIN Links ON Links.id = Images.link\n            LEFT JOIN Links AS PreviewLinks ON PreviewLinks.id = Images.preview_link\n            WHERE Images_Tags.tag IN (SELECT id FROM Tags WHERE tag = ANY($1))",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "images",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "link",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "links",
+            "name": "link"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "preview_link?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "links",
+            "name": "link"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "82cdca469da4e843522b17c72fa408b5b1f5d9280e711df90c2c619b74f5afe8"
+}

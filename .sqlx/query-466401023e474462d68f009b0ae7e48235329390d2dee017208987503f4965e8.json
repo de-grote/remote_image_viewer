@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO Image_Tag(image, tag) VALUES ($1, $2)",
+  "query": "INSERT INTO Images_Tags(image, tag) VALUES ($1, $2)",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "32bd2c817664d4a24d7767fd0cc5b8e905d440325e5d248c1a58500585c3da9e"
+  "hash": "466401023e474462d68f009b0ae7e48235329390d2dee017208987503f4965e8"
 }
