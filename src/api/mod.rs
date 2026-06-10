@@ -25,6 +25,10 @@ pub enum ServerError {
     InvalidImageLink,
     #[error("Not an image")]
     NotAnImage,
+    #[error("Username already exists")]
+    UsernameExists,
+    #[error("Invalid username or password")]
+    FailedLogin,
     #[error("Unknown error")]
     UnknownError,
 }

@@ -10,12 +10,12 @@ To run the app you will first neec to start the database with:
 
 (you might need to use sudo when on linux)
 ```sh
-docker compose -f compose.yml build
+docker compose build
 ```
 
 If you have build the db before you can also run:
 ```sh
-docker compose -f compose.yml up -d
+docker compose up -d
 ```
 
 Make sure to close the docker once you're done with:

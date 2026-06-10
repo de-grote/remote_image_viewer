@@ -22,3 +22,9 @@ pub use upload::Upload;
 
 mod search;
 pub use search::Search;
+
+mod login;
+pub use login::Login;
+
+mod register;
+pub use register::Register;

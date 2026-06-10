@@ -31,12 +31,6 @@ mod user_impl {
         // This is run when the user has logged in and has not yet been Cached in the system.
         // Once ran it will load and cache the user.
         async fn load_user(userid: i64, pool: Option<&PgPool>) -> anyhow::Result<User> {
-            if userid == 1 {
-                return Ok(User {
-                    id: userid,
-                    username: "Guest".to_string(),
-                });
-            }
             // should be set in constructor
             let pool = pool.ok_or(ServerError::UnknownError)?;
             let user = sqlx::query_as!(User, "SELECT id, username FROM Users WHERE id=$1", userid)
@@ -47,15 +41,15 @@ mod user_impl {
 
         // This function is used internally to determine if they are logged in or not.
         fn is_authenticated(&self) -> bool {
-            self.id != 1
+            true
         }
 
         fn is_active(&self) -> bool {
-            self.id != 1
+            true
         }
 
         fn is_anonymous(&self) -> bool {
-            self.id == 1
+            false
         }
     }
 }

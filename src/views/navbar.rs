@@ -1,4 +1,4 @@
-use crate::Route;
+use crate::{Route, api};
 use dioxus::prelude::*;
 
 const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");
@@ -10,6 +10,7 @@ const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");
 /// routes will be rendered under the outlet inside this component
 #[component]
 pub fn Navbar() -> Element {
+    let logged_in = use_server_future(get_user_info)?;
     rsx! {
         document::Link { rel: "stylesheet", href: NAVBAR_CSS }
 
@@ -17,10 +18,20 @@ pub fn Navbar() -> Element {
             Link { to: Route::Home {}, "Home" }
             Link { to: Route::Search { tags: None }, "Search" }
             Link { to: Route::Upload {}, "Upload" }
+
+            if let Some(user) = logged_in().unwrap()? {
+                Link { to: Route::Home {}, "{user.username}" }
+            } else {
+                Link { to: Route::Login {}, "Login" }
+                Link { to: Route::Register {}, "Register" }
+            }
         }
 
-        // The `Outlet` component is used to render the next component inside the layout. In this case, it will render either
-        // the [`Home`] or [`Blog`] component depending on the current route.
         Outlet::<Route> {}
     }
+}
+
+#[server(auth: crate::server::Session)]
+async fn get_user_info() -> Result<Option<api::User>> {
+    Ok(auth.current_user)
 }

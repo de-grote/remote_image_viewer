@@ -1,28 +1,10 @@
-use dioxus::prelude::*;
-use sqlx::{PgPool, PgTransaction};
-use std::{collections::BTreeSet, sync::OnceLock};
-
 use crate::{
     api::{Image, ServerError},
-    server::settings::GLOBAL_SETTINGS,
+    server::{db, settings::GLOBAL_SETTINGS},
 };
-
-static POOL: OnceLock<PgPool> = OnceLock::new();
-
-pub async fn db() -> &'static PgPool {
-    match POOL.get() {
-        Some(pool) => pool,
-        None => {
-            dotenvy::dotenv().unwrap();
-            let pool = PgPool::connect_lazy(
-                &std::env::var("DATABASE_URL").expect("could not get env var"),
-            )
-            .expect("could not connect to db");
-            POOL.set(pool).unwrap();
-            POOL.get().unwrap()
-        }
-    }
-}
+use dioxus::prelude::*;
+use sqlx::PgTransaction;
+use std::collections::BTreeSet;
 
 pub async fn upload_new_image(link: String, tags: BTreeSet<String>) -> Result<i64> {
     let mut connection = db().await.begin().await?;

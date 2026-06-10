@@ -2,7 +2,7 @@
 // need dioxus
 use dioxus::prelude::*;
 
-use views::{Home, ImageView, Navbar, Search, Upload};
+use views::{Home, ImageView, Login, Navbar, Register, Search, Upload};
 
 #[cfg(feature = "server")]
 mod server;
@@ -38,6 +38,12 @@ enum Route {
 
         #[route("/search?:tags")]
         Search { tags: Option<String> },
+
+        #[route("/login")]
+        Login {},
+
+        #[route("/register")]
+        Register {},
 }
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
@@ -51,18 +57,17 @@ fn main() {
     dioxus::launch(App);
     #[cfg(feature = "server")]
     dioxus::serve(|| async move {
-        use crate::server::queries::db;
+        use crate::server::{AuthLayer, db};
         use axum_session::{SessionConfig, SessionLayer, SessionStore};
-        use axum_session_auth::{AuthConfig, AuthSessionLayer};
+        use axum_session_auth::AuthConfig;
         use axum_session_sqlx::SessionPgPool;
-        use sqlx::PgPool;
 
         let pool = db().await;
 
         Ok(dioxus::server::router(App)
             .layer(
-                AuthSessionLayer::<api::User, i64, SessionPgPool, PgPool>::new(Some(pool.clone()))
-                    .with_config(AuthConfig::<i64>::default().with_anonymous_user_id(Some(1))),
+                AuthLayer::new(Some(pool.clone()))
+                    .with_config(AuthConfig::<i64>::default()),
             )
             .layer(SessionLayer::new(
                 SessionStore::<SessionPgPool>::new(

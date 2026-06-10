@@ -38,7 +38,7 @@ pub fn Upload() -> Element {
     }
 }
 
-#[post("/upload_img")]
+#[post("/api/upload_img")]
 async fn upload(link: String, tags: BTreeSet<String>) -> Result<i64> {
     use crate::server::queries::upload_new_image;
 
