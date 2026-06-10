@@ -4,12 +4,18 @@ use std::{fs, sync::LazyLock};
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GlobalSettings {
     pub create_unknown_tags: bool,
+    pub anyone_can_change_settings: bool,
+    pub anyone_can_delete_any_image: bool,
+    pub anyone_can_upload: bool,
 }
 
 impl Default for GlobalSettings {
     fn default() -> Self {
         Self {
             create_unknown_tags: true,
+            anyone_can_change_settings: false,
+            anyone_can_delete_any_image: false,
+            anyone_can_upload: true,
         }
     }
 }

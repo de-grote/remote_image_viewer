@@ -29,6 +29,8 @@ pub enum ServerError {
     UsernameExists,
     #[error("Invalid username or password")]
     FailedLogin,
+    #[error("You don't have the permission to perform this action")]
+    InvalidPerms,
     #[error("Unknown error")]
     UnknownError,
 }

@@ -38,9 +38,16 @@ pub fn Upload() -> Element {
     }
 }
 
-#[post("/api/upload_img")]
+#[post("/api/upload_img", auth: crate::server::Session)]
 async fn upload(link: String, tags: BTreeSet<String>) -> Result<i64> {
-    use crate::server::queries::upload_new_image;
+    use crate::server::{db, queries::upload_new_image};
+    use axum_session_auth::HasPermission;
+
+    let user = auth.current_user.unwrap_or_default();
+
+    if !user.has("upload", &Some(db().await)).await {
+        return Err(ServerError::InvalidPerms.into());
+    }
 
     let client = reqwest::Client::new();
     let res = client
