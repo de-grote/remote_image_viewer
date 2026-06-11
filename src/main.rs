@@ -2,7 +2,7 @@
 // need dioxus
 use dioxus::prelude::*;
 
-use views::{Home, ImageView, Login, Navbar, Register, Search, Upload};
+use views::{Home, ImageView, Login, Navbar, Profile, Register, Search, Upload};
 
 #[cfg(feature = "server")]
 mod server;
@@ -44,6 +44,9 @@ enum Route {
 
         #[route("/register")]
         Register {},
+
+        #[route("/profile/:id")]
+        Profile { id: i64 },
 }
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
@@ -65,10 +68,7 @@ fn main() {
         let pool = db().await;
 
         Ok(dioxus::server::router(App)
-            .layer(
-                AuthLayer::new(Some(pool.clone()))
-                    .with_config(AuthConfig::<i64>::default()),
-            )
+            .layer(AuthLayer::new(Some(pool.clone())).with_config(AuthConfig::<i64>::default()))
             .layer(SessionLayer::new(
                 SessionStore::<SessionPgPool>::new(
                     Some(pool.clone().into()),
@@ -96,4 +96,16 @@ fn App() -> Element {
         // the layouts and components for the active route.
         Router::<Route> {}
     }
+}
+
+#[server(auth: crate::server::Session)]
+async fn get_logged_in_user() -> Result<Option<api::User>> {
+    Ok(auth.current_user)
+}
+
+#[get("/api/user/:id")]
+async fn get_user_by_id(id: i64) -> Result<Option<api::User>> {
+    use server::account::get_user;
+
+    Ok(get_user(id).await?)
 }

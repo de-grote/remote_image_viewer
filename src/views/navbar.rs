@@ -1,4 +1,4 @@
-use crate::{Route, api};
+use crate::{Route, get_logged_in_user};
 use dioxus::prelude::*;
 
 const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");
@@ -10,7 +10,7 @@ const NAVBAR_CSS: Asset = asset!("/assets/styling/navbar.css");
 /// routes will be rendered under the outlet inside this component
 #[component]
 pub fn Navbar() -> Element {
-    let logged_in = use_server_future(get_user_info)?;
+    let logged_in = use_server_future(get_logged_in_user)?;
     rsx! {
         document::Link { rel: "stylesheet", href: NAVBAR_CSS }
 
@@ -20,7 +20,7 @@ pub fn Navbar() -> Element {
             Link { to: Route::Upload {}, "Upload" }
 
             if let Some(user) = logged_in().unwrap()? {
-                Link { to: Route::Home {}, "{user.username}" }
+                Link { to: Route::Profile { id: user.id }, "{user.username}" }
             } else {
                 Link { to: Route::Login {}, "Login" }
                 Link { to: Route::Register {}, "Register" }
@@ -29,9 +29,4 @@ pub fn Navbar() -> Element {
 
         Outlet::<Route> {}
     }
-}
-
-#[server(auth: crate::server::Session)]
-async fn get_user_info() -> Result<Option<api::User>> {
-    Ok(auth.current_user)
 }

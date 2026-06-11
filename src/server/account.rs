@@ -1,11 +1,14 @@
-use crate::{api::ServerError, server::db};
+use crate::{
+    api::{ServerError, User},
+    server::db,
+};
 use bcrypt::{DEFAULT_COST, hash, verify};
 use dioxus::core::Result;
 
 pub async fn create_account(username: &str, password: &str) -> Result<i64> {
     let exists = sqlx::query_scalar!(
         "SELECT EXISTS (SELECT 1 FROM users WHERE username = $1)",
-        username
+        username,
     )
     .fetch_one(db().await)
     .await?
@@ -28,7 +31,7 @@ pub async fn create_account(username: &str, password: &str) -> Result<i64> {
 pub async fn check_login_details(username: &str, password: &str) -> Result<i64> {
     let user = sqlx::query!(
         "SELECT id, password_hash FROM Users WHERE username=$1",
-        username
+        username,
     )
     .fetch_one(db().await)
     .await?;
@@ -37,4 +40,12 @@ pub async fn check_login_details(username: &str, password: &str) -> Result<i64> 
     } else {
         Err(ServerError::FailedLogin.into())
     }
+}
+
+pub async fn get_user(id: i64) -> Result<Option<User>> {
+    Ok(
+        sqlx::query_as!(User, "SELECT id, username FROM Users WHERE id=$1", id)
+            .fetch_optional(db().await)
+            .await?,
+    )
 }

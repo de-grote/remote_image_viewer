@@ -28,3 +28,6 @@ pub use login::Login;
 
 mod register;
 pub use register::Register;
+
+mod profile;
+pub use profile::Profile;

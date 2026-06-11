@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[component]
 pub fn Home() -> Element {
     rsx! {
-        h1 { "remote image viewer" }
+        h1 { "Remote Image Viewer" }
         SearchBar {}
     }
 }
