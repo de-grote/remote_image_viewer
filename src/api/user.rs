@@ -15,20 +15,43 @@ impl Default for User {
     }
 }
 
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+pub struct Permissions {
+    pub can_upload: bool,
+    pub can_change_admin_settings: bool,
+    pub can_delete_own_image: bool,
+    pub can_delete_any_image: bool,
+}
+
+#[cfg(feature = "server")]
+impl Default for Permissions {
+    fn default() -> Self {
+        use crate::server::settings::global_settings;
+        let settings = global_settings();
+        Self {
+            can_upload: settings.anyone_can_upload,
+            can_change_admin_settings: false, // even having this as an option would almost be a security issue
+            can_delete_own_image: false, // can't verify if any drawing is your own if you're not logged in
+            can_delete_any_image: settings.anyone_can_delete_any_image,
+        }
+    }
+}
+
 #[cfg(feature = "server")]
 mod user_impl {
     use super::*;
-    use crate::{api::ServerError, server::settings::GLOBAL_SETTINGS};
+    use crate::api::ServerError;
     use async_trait::async_trait;
     use axum_session_auth::{Authentication, HasPermission};
     use sqlx::PgPool;
 
     fn default_perms(perm: &str) -> bool {
+        let permissions = Permissions::default();
         match perm {
-            "upload" => GLOBAL_SETTINGS.anyone_can_upload,
-            "change_settings" => GLOBAL_SETTINGS.anyone_can_change_settings,
-            "delete_own_image" => false, // can't verify if any drawing is your own if you're not logged in
-            "delete_any_image" => GLOBAL_SETTINGS.anyone_can_delete_any_image,
+            "upload" => permissions.can_upload,
+            "change_admin_settings" => permissions.can_change_admin_settings,
+            "delete_own_image" => permissions.can_delete_own_image,
+            "delete_any_image" => permissions.can_delete_any_image,
             _ => false,
         }
     }
@@ -36,7 +59,6 @@ mod user_impl {
     #[async_trait]
     impl HasPermission<PgPool> for User {
         async fn has(&self, perm: &str, pool: &Option<&PgPool>) -> bool {
-            dbg!(perm);
             if self.id == -1 {
                 return default_perms(perm);
             }
@@ -61,8 +83,8 @@ mod user_impl {
                 }
                 match perm {
                     "upload" => query_perm!("SELECT can_upload FROM Roles WHERE id=$1"),
-                    "change_settings" => {
-                        query_perm!("SELECT can_change_settings FROM Roles WHERE id=$1")
+                    "change_admin_settings" => {
+                        query_perm!("SELECT can_change_admin_settings FROM Roles WHERE id=$1")
                     }
                     "delete_own_image" => {
                         query_perm!("SELECT can_delete_own_image FROM Roles WHERE id=$1")

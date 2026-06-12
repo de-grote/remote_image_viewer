@@ -1,39 +1,36 @@
-use serde::{Deserialize, Serialize};
-use std::{fs, sync::LazyLock};
-
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GlobalSettings {
-    pub create_unknown_tags: bool,
-    pub anyone_can_change_settings: bool,
-    pub anyone_can_delete_any_image: bool,
-    pub anyone_can_upload: bool,
-}
-
-impl Default for GlobalSettings {
-    fn default() -> Self {
-        Self {
-            create_unknown_tags: true,
-            anyone_can_change_settings: false,
-            anyone_can_delete_any_image: false,
-            anyone_can_upload: true,
-        }
-    }
-}
+use crate::api::GlobalSettings;
+use std::{
+    fs,
+    sync::{LazyLock, RwLock},
+};
 
 const CONFIG_PATH: &str = "config.toml";
 
-pub static GLOBAL_SETTINGS: LazyLock<GlobalSettings> = LazyLock::new(|| {
-    let Ok(string) = fs::read_to_string(CONFIG_PATH) else {
-        return GlobalSettings::default();
-    };
-    let Ok(res) = toml::from_str::<GlobalSettings>(&string) else {
-        return GlobalSettings::default();
-    };
-    res
+static GLOBAL_SETTINGS: LazyLock<RwLock<GlobalSettings>> = LazyLock::new(|| {
+    if let Ok(string) = fs::read_to_string(CONFIG_PATH)
+        && let Ok(res) = toml::from_str::<GlobalSettings>(&string)
+    {
+        RwLock::new(res)
+    } else {
+        RwLock::new(GlobalSettings::default())
+    }
 });
 
+pub fn global_settings() -> GlobalSettings {
+    GLOBAL_SETTINGS
+        .read()
+        .expect("couldn't get global settings")
+        .clone()
+}
+
+pub fn set_global_settings(new_settings: GlobalSettings) {
+    *GLOBAL_SETTINGS
+        .write()
+        .expect("couldn't write to global settings") = new_settings;
+}
+
 pub fn save_settings() -> dioxus::core::Result<()> {
-    let content = toml::to_string_pretty(&*GLOBAL_SETTINGS)?;
+    let content = toml::to_string_pretty(&global_settings())?;
     fs::write(CONFIG_PATH, content)?;
     Ok(())
 }

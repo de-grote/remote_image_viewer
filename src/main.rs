@@ -103,6 +103,13 @@ async fn get_logged_in_user() -> Result<Option<api::User>> {
     Ok(auth.current_user)
 }
 
+#[server(auth: crate::server::Session)]
+async fn get_logged_in_user_perms() -> Result<api::Permissions> {
+    use server::account::get_perms_of_user;
+
+    Ok(get_perms_of_user(auth.id).await?.unwrap_or_default())
+}
+
 #[get("/api/user/:id")]
 async fn get_user_by_id(id: i64) -> Result<Option<api::User>> {
     use server::account::get_user;

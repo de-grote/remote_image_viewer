@@ -9,3 +9,4 @@
 /.vscode
 riv.db
 .env
+config.toml

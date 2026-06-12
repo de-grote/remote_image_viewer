@@ -1,6 +1,6 @@
 use crate::{
     api::{Image, ServerError},
-    server::{db, settings::GLOBAL_SETTINGS},
+    server::{db, settings::global_settings},
 };
 use dioxus::prelude::*;
 use sqlx::PgTransaction;
@@ -45,6 +45,7 @@ async fn add_tags_inner<'a>(
     tags: BTreeSet<String>,
     mut connection: PgTransaction<'_>,
 ) -> Result<()> {
+    let settings = global_settings();
     for tag in tags {
         let tag_id = sqlx::query_scalar!("SELECT id FROM Tags WHERE tag=$1", tag)
             .fetch_optional(&mut *connection)
@@ -53,7 +54,7 @@ async fn add_tags_inner<'a>(
         let tag_id = match tag_id {
             Some(id) => id,
             None => {
-                if GLOBAL_SETTINGS.create_unknown_tags {
+                if settings.create_unknown_tags {
                     sqlx::query_scalar!("INSERT INTO Tags(tag) VALUES ($1) RETURNING id", tag)
                         .fetch_one(&mut *connection)
                         .await

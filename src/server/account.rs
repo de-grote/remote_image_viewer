@@ -1,5 +1,5 @@
 use crate::{
-    api::{ServerError, User},
+    api::{Permissions, ServerError, User},
     server::db,
 };
 use bcrypt::{DEFAULT_COST, hash, verify};
@@ -48,4 +48,15 @@ pub async fn get_user(id: i64) -> Result<Option<User>> {
             .fetch_optional(db().await)
             .await?,
     )
+}
+
+pub async fn get_perms_of_user(id: i64) -> Result<Option<Permissions>> {
+    Ok(sqlx::query_as!(
+        Permissions,
+        "SELECT can_upload, can_change_admin_settings, can_delete_own_image, can_delete_any_image FROM Users 
+            JOIN Roles ON Users.role = Roles.id WHERE Users.id = $1",
+        id,
+    )
+    .fetch_optional(db().await)
+    .await?)
 }

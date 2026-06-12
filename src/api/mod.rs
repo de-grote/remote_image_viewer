@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 mod user;
-pub use user::User;
+pub use user::{User, Permissions};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Image {
@@ -15,6 +15,23 @@ pub struct Image {
 pub struct ImageWithTags {
     pub image: Image,
     pub tags: Vec<String>,
+}
+
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+pub struct GlobalSettings {
+    pub create_unknown_tags: bool,
+    pub anyone_can_delete_any_image: bool,
+    pub anyone_can_upload: bool,
+}
+
+impl Default for GlobalSettings {
+    fn default() -> Self {
+        Self {
+            create_unknown_tags: true,
+            anyone_can_delete_any_image: false,
+            anyone_can_upload: true,
+        }
+    }
 }
 
 #[derive(Debug, Error)]
